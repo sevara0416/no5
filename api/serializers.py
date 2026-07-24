@@ -1,7 +1,28 @@
-from rest_framework.serializers import ModelSerializer
-from .models import Product
+from rest_framework import serializers
+from .models import Product, CustomUser
+from django.contrib.auth import get_user_model
 
-class ProductSerializers(ModelSerializer):
+User=get_user_model()
+class RegisterSerializer(serializers.ModelSerializer):
+    password= serializers.CharField(write_only=True)
+
+    class Meta:
+        model = User
+        fields = ["id","username","email","password","age","phone_number"]
+        read_only_fields=["created_at"]
+
+    def create(self, validated_data):
+        user= User.objects.create_user(
+             username=self.validated_data["username"],
+             email=self.validated_data["email"],
+             password=self.validated_data["password"],
+             age=self.validated_data["age"],
+             phone_number=self.validated_data["phone_number"],
+        )
+        return user
+
+
+class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model= Product
         fields=["id","name","price","descriptions","created_at"]
